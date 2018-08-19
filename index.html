@@ -84,9 +84,8 @@
     created () {
       messagesRef.on('child_added', snapshot => this.messages.push({...snapshot.val(), id: snapshot.key}))
       messagesRef.on('child_removed', snapshot => {
-        const deletedMessage = this.messages.find(message => message.id === snapshot.key)
-        const index = this.messages.indexOf(deletedMessage)
-        this.messages.splice(index,1)
+        const deletedMessageIndex = this.messages.findIndex(message => message.id === snapshot.key)
+        this.messages.splice(deletedMessageIndex,1)
       })
     }
   })
