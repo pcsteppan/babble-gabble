@@ -51,6 +51,7 @@
   firebase.initializeApp(config);
 
   const database = firebase.database()
+  const messagesRef = database.ref('messages')
 
   database.ref('messages').on('value', function () {
   })
@@ -66,8 +67,9 @@
 
     methods: {
       storeMessage () {
-        this.messages.push({text: this.messageText, nickname: this.nickname})
-        this.messageText = ''
+        //database.ref('messages').push().set({text: this.messageText, nickname: this.nickname})
+        messagesRef.push({text: this.messageText, nickname: this.nickname})
+        this.messageText=''
       }
     },
 
