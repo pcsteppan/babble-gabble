@@ -1,5 +1,5 @@
 # babble-gabble
-## Project aimed to help me become familiar with Google's firebase real time database.
+## Project aimed to help me become familiar with Google's Firebase Realtime Database.
 
 __Left image:__ the app, which allows multiple users to communicate in realtime and receive notifications whenever a new message is added, edited, or removed.
 
