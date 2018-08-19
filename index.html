@@ -20,6 +20,8 @@
       <h6 class="card-subtitle mb-2 text-muted">{{ message.nickname }}</h6>
       <!-- content -->
       <p class="card-text">{{ message.text }}</p>
+      <!--actions-->
+      <a @click.prevent="deleteMessage(message)" href="#" class="card-link">delete</a>
     </div>
   </div>
 
@@ -70,12 +72,22 @@
         //database.ref('messages').push().set({text: this.messageText, nickname: this.nickname})
         messagesRef.push({text: this.messageText, nickname: this.nickname})
         this.messageText=''
+      },
+
+      deleteMessage ({id}) {
+        messagesRef.child(id).remove()
       }
     },
 
     // hook after vue instance is created
+    // these are listeners that allow all users to get real time updates without refreshing their clients/browsers
     created () {
-      database.ref('messages').on('child_added', snapshot => this.messages.push(snapshot.val()))
+      messagesRef.on('child_added', snapshot => this.messages.push({...snapshot.val(), id: snapshot.key}))
+      messagesRef.on('child_removed', snapshot => {
+        const deletedMessage = this.messages.find(message => message.id === snapshot.key)
+        const index = this.messages.indexOf(deletedMessage)
+        this.messages.splice(index,1)
+      })
     }
   })
 </script>
