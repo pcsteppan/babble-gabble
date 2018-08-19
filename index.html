@@ -4,6 +4,8 @@
   <meta charset="utf-8"/>
   <title>Babble Gabble</title>
   <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/native-toast@2.0.0/dist/native-toast.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/native-toast@2.0.0/dist/native-toast.css">
   <link rel="stylesheet" href="https://bootswatch.com/4/united/bootstrap.min.css">
   <style>
     body{
@@ -109,7 +111,19 @@
     // hook after vue instance is created
     // these are listeners that allow all users to get real time updates without refreshing their clients/browsers
     created () {
-      messagesRef.on('child_added', snapshot => this.messages.push({...snapshot.val(), id: snapshot.key}))
+      messagesRef.on('child_added', snapshot => {
+        this.messages.push({
+          ...snapshot.val(), 
+          id: snapshot.key,
+        })
+        nativeToast({
+          message: `${snapshot.val().nickname} sent a new message`,
+          position: 'north-east',
+          // Self destroy in 5 seconds
+          timeout: 5000,
+          type: 'info'
+        })
+      })
       messagesRef.on('child_removed', snapshot => {
         const deletedMessageIndex = this.messages.findIndex(message => message.id === snapshot.key)
         this.messages.splice(deletedMessageIndex,1)
