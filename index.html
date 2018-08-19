@@ -19,15 +19,23 @@
       <!-- nickname -->
       <h6 class="card-subtitle mb-2 text-muted">{{ message.nickname }}</h6>
       <!-- content -->
-      <p class="card-text">{{ message.text }}</p>
+      <p v-if="message !== editing" class="card-text">{{ message.text }}</p>
+      <textarea v-else v-model="messageText" class="form-control"></textarea>
       <!--actions-->
-      <a @click.prevent="deleteMessage(message)" href="#" class="card-link">delete</a>
+      <template v-if="message !== editing">
+        <a @click.prevent="deleteMessage(message)" href="#" class="card-link">delete</a>
+        <a  @click.prevent="editMessage(message)" href="#" class="card-link">edit</a>
+      </template>
+      <template v-else>
+        <button @click.prevent="cancelEditing" class="btn btn-primary">Cancel</button>
+        <button @click.prevent="updateMessage" class="btn btn-primary">Update</button>
+      </template>
     </div>
   </div>
 
   <hr>
   <!-- New Message -->
-  <form @submit.prevent="storeMessage">
+  <form v-if="!editing" @submit.prevent="storeMessage">
     <div class="form-group">
       <label>Message:</label>
       <textarea v-model="messageText" class="form-control"></textarea>
@@ -64,7 +72,8 @@
     data: {
       messages: [],
       messageText: '',
-      nickname: 'patrick'
+      nickname: 'patrick',
+      editing: ''
     },
 
     methods: {
@@ -76,6 +85,22 @@
 
       deleteMessage ({id}) {
         messagesRef.child(id).remove()
+      },
+
+      cancelEditing () {
+        this.editing = ''
+        this.messageText = ''
+      },
+
+      editMessage (message) {
+        this.editing = message
+        this.messageText = message.text
+        //messagesRef.child(id).remove()
+      },
+
+      updateMessage () {
+        messagesRef.child(this.editing.id).update({text: this.messageText})
+        this.cancelEditing()
       }
     },
 
@@ -86,6 +111,10 @@
       messagesRef.on('child_removed', snapshot => {
         const deletedMessageIndex = this.messages.findIndex(message => message.id === snapshot.key)
         this.messages.splice(deletedMessageIndex,1)
+      })
+      messagesRef.on('child_changed', snapshot => {
+        const updatedMessage = this.messages.find(message => message.id === snapshot.key)
+        updatedMessage.text = snapshot.val().text
       })
     }
   })
