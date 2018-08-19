@@ -5,6 +5,7 @@
   <title>Babble Gabble</title>
   <script src="https://unpkg.com/vue"></script>
   <script src="https://unpkg.com/native-toast@2.0.0/dist/native-toast.min.js"></script>
+  <script src="utils.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/native-toast@2.0.0/dist/native-toast.css">
   <link rel="stylesheet" href="https://bootswatch.com/4/united/bootstrap.min.css">
   <style>
@@ -116,21 +117,26 @@
           ...snapshot.val(), 
           id: snapshot.key,
         })
-        nativeToast({
-          message: `${snapshot.val().nickname} sent a new message`,
-          position: 'north-east',
-          // Self destroy in 5 seconds
-          timeout: 5000,
-          type: 'info'
-        })
+
+        if(snapshot.val().nickname !== name) {
+          toast({message: `${snapshot.val().nickname} sent a new message`, type: 'success'})
+        }
       })
       messagesRef.on('child_removed', snapshot => {
         const deletedMessageIndex = this.messages.findIndex(message => message.id === snapshot.key)
         this.messages.splice(deletedMessageIndex,1)
+
+        if(snapshot.val().nickname !== this.nickname) {
+          toast({message: `${snapshot.val().nickname} removed a message`, type: 'warning'})
+        }
       })
       messagesRef.on('child_changed', snapshot => {
         const updatedMessage = this.messages.find(message => message.id === snapshot.key)
         updatedMessage.text = snapshot.val().text
+
+        if(snapshot.val().nickname !== name) {
+          toast({message: `${snapshot.val().nickname} edited a message`, type: 'info'})
+        }
       })
     }
   })
